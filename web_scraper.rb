@@ -36,6 +36,7 @@ listing_details = listing_details.join.split(" ").join(" ").split("s ")
 
 # Write the csv file with the scraped data
 CSV.open("airbnb_listings.csv","w") do |file|
+  # add header to data columns
   file <<  ["Listing Names", "Listing Prices", "Listing Details"]
 
   listing_names.length.times do |i|
