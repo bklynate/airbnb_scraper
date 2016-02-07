@@ -9,25 +9,43 @@ url = "https://www.airbnb.com/s/Brooklyn--New-York--NY"
 # Parse the HTML with nokogiri
 data = Nokogiri::HTML(open(url))
 
-# Scrapes the listing names into arrays
+# Scrapes the max number of result pages; store in max_num
+number_of_pages_to_scrape = []
+data.css('div.pagination ul li a[target]').each do |num|
+  number_of_pages_to_scrape << num.text.to_i
+end
+
+max_num = number_of_pages_to_scrape.max
+
+# creating empty arrays
 listing_names = []
-data.css('h3.h5.listing-name').each do |listing|
-  listing = listing.text
-  listing = listing.delete("\n")
-  listing = listing.strip
-  listing_names << listing
-end
-
 listing_prices = []
-data.css('span.h3.text-contrast.price-amount').each do |price|
-  listing_prices << price.text
-end
-
 listing_details = []
-data.css('div.text-muted.listing-location.text-truncate').each do |details|
-  details = details.text
-  details = details.delete("\n")
-  listing_details << details
+
+# loop for every page of search results
+max_num.times do |i|
+
+  url = "https://www.airbnb.com/s/Brooklyn--New-York--NY?page=#{i+1}"
+  data = Nokogiri::HTML(open(url))
+
+  # Scrapes the listing names into arrays
+  data.css('h3.h5.listing-name').each do |listing|
+    listing = listing.text
+    listing = listing.delete("\n")
+    listing = listing.strip
+    listing_names << listing
+  end
+
+  data.css('span.h3.text-contrast.price-amount').each do |price|
+    listing_prices << price.text
+  end
+
+  data.css('div.text-muted.listing-location.text-truncate').each do |details|
+    details = details.text
+    details = details.delete("\n")
+    # details = details.split(/ · /)
+    listing_details << details
+  end
 end
 
 # Had to strip the extra whitespace within the strings in the array
